@@ -8,13 +8,18 @@ sizey = 310
 win = pygame.display.set_mode((sizex, sizey))
 pygame.display.set_caption("TicTacToe")
 
+WHITE = (255, 255, 255)
+GREY = (200, 200, 200)
+RED = (255, 0, 0)
 
+
+player = 1
 class field():
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.width = 100
-        self.color = (255, 255, 255)
+        self.color = WHITE
 
         self.line1 = ((self.x + 10, self.y + 10), (self.x + 90, self.y + 90))
         self.line2 = ((self.x + 90, self.y + 10), (self.x + 10, self.y + 90))
@@ -29,30 +34,42 @@ class field():
         if self.status == 1:
             pygame.draw.line(win, (0, 0, 0), self.line1[0], self.line1[1], 4)
             pygame.draw.line(win, (0, 0, 0), self.line2[0], self.line2[1], 4)
-
         # drawing circle
-        if self.status == 2:
+        elif self.status == 2:
             pygame.draw.circle(win, (0, 0, 0), (self.x + 50, self.y + 50), 40, 4)
 
     def hover(self): # checks if cursor is over the field
+        global player
         pos = pygame.mouse.get_pos()
-        if self.status == 0:
-            if pos[0] >= (self.x) and pos[0] <= (self.x + 100) and pos[1] >= (self.y) and pos[1] <= (self.y + 100):
-                self.color = (200, 200, 200)
+        if player <= 2 :
+            if self.status == 0:
+                if pos[0] >= (self.x) and pos[0] <= (self.x + 100) and pos[1] >= (self.y) and pos[1] <= (self.y + 100):
+                    self.color = GREY
+                else:
+                    self.color = WHITE
             else:
-                self.color = (255, 255, 255)
-        else:
-            self.color = (255, 255, 255)
+                self.color = WHITE
 
     def pick(self): # switches status if field is clicked
+        global player
         if self.status == 0:
             pos = pygame.mouse.get_pos()
-            button = pygame.mouse.get_pressed()[0]
+            button1 = pygame.mouse.get_pressed()[0]
             if pos[0] >= (self.x) and pos[0] <= (self.x + 100) and pos[1] >= (self.y) and pos[1] <= (self.y + 100):
-                if button:
-                    self.status = 1
-                else:
-                    self.status = 0
+                if player == 1:
+                    if button1:
+                        self.status = 1
+                        player = 2
+                    else:
+                        pass
+                elif player == 2:
+                    if button1:
+                        self.status = 2
+                        player = 1
+                    else:
+                        pass
+
+
 
 field0_0 = field(0,   0)
 field0_1 = field(106, 0)
@@ -68,6 +85,37 @@ fields = [field0_0, field0_1, field0_2, # 0
           field1_0, field1_1, field1_2, # 1
           field2_0, field2_1, field2_2] # 2
           # 0       # 1       # 2
+
+row1 = [fields[0], fields[1], fields[2]]
+row2 = [fields[3], fields[4], fields[5]]
+row3 = [fields[6], fields[7], fields[8]]
+row4 = [fields[0], fields[3], fields[6]]
+row5 = [fields[1], fields[4], fields[7]]
+row6 = [fields[2], fields[5], fields[8]]
+row7 = [fields[0], fields[4], fields[8]]
+row8 = [fields[6], fields[4], fields[2]]
+
+rows = [row1, row2, row3, row4, row5, row6, row7, row8]
+
+
+def reset():
+    global player
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_r]:
+        player = 1
+        for field in fields:
+            field.status = 0
+
+def winner():
+    global rows
+    global player
+    for row in rows:
+        if row[0].status == (1) and row[1].status == (1) and row[2].status == (1):
+            for field in row:
+                field.color = (255, 0, 0)
+            player = 3
+
+
 run = 1
 while run:
     for event in pygame.event.get():
@@ -82,6 +130,10 @@ while run:
         field.hover()
         field.pick()
         field.draw()
+
+    winner()
+
+    reset()
 
     pygame.display.update()
 
