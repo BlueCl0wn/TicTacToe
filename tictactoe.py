@@ -32,11 +32,11 @@ class field():
 
         # drawing cross
         if self.status == 1:
-            pygame.draw.line(win, (0, 0, 0), self.line1[0], self.line1[1], 4)
-            pygame.draw.line(win, (0, 0, 0), self.line2[0], self.line2[1], 4)
+            pygame.draw.line(win, (0, 0, 0), self.line1[0], self.line1[1], 6)
+            pygame.draw.line(win, (0, 0, 0), self.line2[0], self.line2[1], 6)
         # drawing circle
         elif self.status == 2:
-            pygame.draw.circle(win, (0, 0, 0), (self.x + 50, self.y + 50), 40, 4)
+            pygame.draw.circle(win, (0, 0, 0), (self.x + 50, self.y + 50), 43, 4)
 
     def hover(self): # checks if cursor is over the field
         global player
@@ -86,14 +86,14 @@ fields = [field0_0, field0_1, field0_2, # 0
           field2_0, field2_1, field2_2] # 2
           # 0       # 1       # 2
 
-row1 = [fields[0], fields[1], fields[2]]
-row2 = [fields[3], fields[4], fields[5]]
-row3 = [fields[6], fields[7], fields[8]]
-row4 = [fields[0], fields[3], fields[6]]
-row5 = [fields[1], fields[4], fields[7]]
-row6 = [fields[2], fields[5], fields[8]]
-row7 = [fields[0], fields[4], fields[8]]
-row8 = [fields[6], fields[4], fields[2]]
+row1 = [fields[0], fields[1], fields[2]] # ---
+row2 = [fields[3], fields[4], fields[5]] # ---
+row3 = [fields[6], fields[7], fields[8]] # ---
+row4 = [fields[0], fields[3], fields[6]] # |
+row5 = [fields[1], fields[4], fields[7]] # |
+row6 = [fields[2], fields[5], fields[8]] # |
+row7 = [fields[0], fields[4], fields[8]] # \
+row8 = [fields[6], fields[4], fields[2]] # /
 
 rows = [row1, row2, row3, row4, row5, row6, row7, row8]
 
