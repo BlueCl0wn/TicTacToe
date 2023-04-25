@@ -2,7 +2,9 @@ import pygame
 import numpy
 
 n = int(input("Wie groß soll das Feld sein? (n muss eine natürliche Zahl sein!)"))
-N = n
+fields_to_win = int(input("Wie viele Felder werden zum Gewinnen benötigt?"))#
+
+N = n  # In case some weirdo doesn't want a quadratic field.
 
 field_size = 100
 line_width = 5
@@ -112,22 +114,32 @@ def reset():
     global player
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:
+        print("Games has been reset.")
         player = 1
         for _field_row in fields:
             for _field in _field_row:
                 _field.status = 0
 
 
-def get_row_is_winner(row):
-    status = row[0].status
+def get_row_is_winner(row) -> bool:
+    count = 0
+    old_status = 0
+    for t in row:
+        if t.status == 0:
+            count = 0
+        elif t.status != old_status:
+            count = 1
+        elif t.status == old_status:
+            count += 1
+        else:
+            raise Exception("get_row_is_winner(): There was an error with the field.status.")
 
-    if status == 0:
-        return False
+        if count >= fields_to_win:
+            return True
+        else:
+            old_status = t.status
 
-    for t in range(1, n):
-        if status != row[t].status:
-            return False
-    return True
+    return False
 
 
 def winner():
