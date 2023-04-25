@@ -1,61 +1,72 @@
 import pygame
+import numpy
 
-pygame.init()
+n = 3
+N = n
 
-sizex = 310
-sizey = 310
+field_size = 100
+line_width = 5
 
-win = pygame.display.set_mode((sizex, sizey))
-pygame.display.set_caption("TicTacToe")
+total_width = n * field_size + (n - 1) * line_width
 
 WHITE = (255, 255, 255)
 GREY = (200, 200, 200)
 RED = (255, 0, 0)
-
+BLACK = (0, 0, 0)
 
 player = 1
-class field():
+
+pygame.init()
+win = pygame.display.set_mode((total_width, total_width))
+pygame.display.set_caption("TicTacToe")
+
+
+class Field:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.width = 100
         self.color = WHITE
 
-        self.line1 = ((self.x + 10, self.y + 10), (self.x + 90, self.y + 90))
-        self.line2 = ((self.x + 90, self.y + 10), (self.x + 10, self.y + 90))
+        self.line1 = (
+        (self.x + 0.1 * field_size, self.y + 0.1 * field_size), (self.x + 0.9 * field_size, self.y + 0.9 * field_size))
+        self.line2 = (
+        (self.x + 0.9 * field_size, self.y + 0.1 * field_size), (self.x + 0.1 * field_size, self.y + 0.9 * field_size))
 
         self.status = 0
 
-    def draw(self): # draws fields and cross or circle
+    def draw(self):  # draws fields and cross or circle
         # drawing rectangle
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
         # drawing cross
         if self.status == 1:
-            pygame.draw.line(win, (0, 0, 0), self.line1[0], self.line1[1], 6)
-            pygame.draw.line(win, (0, 0, 0), self.line2[0], self.line2[1], 6)
+            pygame.draw.line(win, BLACK, self.line1[0], self.line1[1], 6)
+            pygame.draw.line(win, BLACK, self.line2[0], self.line2[1], 6)
         # drawing circle
         elif self.status == 2:
-            pygame.draw.circle(win, (0, 0, 0), (self.x + 50, self.y + 50), 43, 4)
+            pygame.draw.circle(win, BLACK, (self.x + 0.5 * field_size, self.y + 0.5 * field_size),
+                               int(0.43 * field_size), int(0.8 * line_width))
 
-    def hover(self): # checks if cursor is over the field
+    def hover(self):  # checks if cursor is over the field
         global player
         pos = pygame.mouse.get_pos()
-        if player <= 2 :
+        if player <= 2:
             if self.status == 0:
-                if pos[0] >= (self.x) and pos[0] <= (self.x + 100) and pos[1] >= (self.y) and pos[1] <= (self.y + 100):
+                if self.x <= pos[0] <= (self.x + field_size) and self.y <= pos[1] <= (self.y + field_size):
                     self.color = GREY
                 else:
                     self.color = WHITE
             else:
                 self.color = WHITE
 
-    def pick(self): # switches status if field is clicked
+    def pick(self):  # switches status if field is clicked
         global player
         if self.status == 0:
             pos = pygame.mouse.get_pos()
             button1 = pygame.mouse.get_pressed()[0]
-            if pos[0] >= (self.x) and pos[0] <= (self.x + 100) and pos[1] >= (self.y) and pos[1] <= (self.y + 100):
+            if self.x <= pos[0] <= (self.x + field_size) and self.y <= pos[1] <= (
+                    self.y + field_size):
                 if player == 1:
                     if button1:
                         self.status = 1
@@ -70,32 +81,31 @@ class field():
                         pass
 
 
+fields = numpy.ndarray((n, N), dtype=Field)
 
-field0_0 = field(0,   0)
-field0_1 = field(106, 0)
-field0_2 = field(211, 0)
-field1_0 = field(0,   106)
-field1_1 = field(106, 106)
-field1_2 = field(211, 106)
-field2_0 = field(0,   211)
-field2_1 = field(106, 211)
-field2_2 = field(211, 211)
+for i in range(n):
+    for j in range(N):
+        x = j * field_size + (line_width * j)
+        y = i * field_size + (line_width * i)
+        fields[i][j] = Field(x, y)
 
-fields = [field0_0, field0_1, field0_2, # 0
-          field1_0, field1_1, field1_2, # 1
-          field2_0, field2_1, field2_2] # 2
-          # 0       # 1       # 2
+fields_transposed = fields.T
 
-row1 = [fields[0], fields[1], fields[2]] # ---
-row2 = [fields[3], fields[4], fields[5]] # ---
-row3 = [fields[6], fields[7], fields[8]] # ---
-row4 = [fields[0], fields[3], fields[6]] # |
-row5 = [fields[1], fields[4], fields[7]] # |
-row6 = [fields[2], fields[5], fields[8]] # |
-row7 = [fields[0], fields[4], fields[8]] # \
-row8 = [fields[6], fields[4], fields[2]] # /
+rows_length = 2 * n + 2
 
-rows = [row1, row2, row3, row4, row5, row6, row7, row8]
+rows = numpy.ndarray((rows_length, n), dtype=Field)
+for i in range(rows_length):
+    if i < n:
+        rows[i] = fields[i]
+    elif i < 2 * n:
+        rows[i] = fields_transposed[i - n]
+    elif i == rows_length - 2:
+        rows[rows_length - 2] = rows.diagonal()
+    elif i == rows_length - 1:
+        rows[rows_length - 1] = numpy.fliplr(fields).diagonal()
+
+
+# rows = [row1, row2, row3, row4, row5, row6, row7, row8]
 
 
 def reset():
@@ -103,16 +113,30 @@ def reset():
     keys = pygame.key.get_pressed()
     if keys[pygame.K_r]:
         player = 1
-        for field in fields:
-            field.status = 0
+        for _field_row in fields:
+            for _field in _field_row:
+                _field.status = 0
+
+
+def get_row_is_winner(row):
+    status = row[0].status
+
+    if status == 0:
+        return False
+
+    for t in range(1, n):
+        if status != row[t].status:
+            return False
+    return True
+
 
 def winner():
     global rows
     global player
     for row in rows:
-        if row[0].status == (1) and row[1].status == (1) and row[2].status == (1):
+        if get_row_is_winner(row):
             for field in row:
-                field.color = (255, 0, 0)
+                field.color = RED
             player = 3
 
 
@@ -124,12 +148,13 @@ while run:
 
     pygame.time.delay(15)
 
-    win.fill((0,0,0)) # BLACK
+    win.fill(BLACK)  # BLACK
 
-    for field in fields:
-        field.hover()
-        field.pick()
-        field.draw()
+    for field_row in fields:
+        for field in field_row:
+            field.hover()
+            field.pick()
+            field.draw()
 
     winner()
 
