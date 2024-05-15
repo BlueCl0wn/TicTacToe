@@ -149,7 +149,7 @@ def winner():
                 field.color = RED
             player = 3
 
-def winner_v2():
+# def winner_v2():
 
 
 
